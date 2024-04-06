@@ -4,7 +4,11 @@ from skimage import io
 from skimage.util import random_noise
 from PIL import Image
 
-def add_noise_and_save(image_path: str, main_folder: str, noise_type: str, var: float = 0.01) -> None:
+
+def add_noise_and_save(image_path: str,
+                       main_folder: str,
+                       noise_type: str,
+                       var: float = 0.01) -> None:
     """
     Adds specified type of noise to an image and saves it to a subfolder within a specified main folder,
     appending the variance value to the file name.
@@ -31,7 +35,9 @@ def add_noise_and_save(image_path: str, main_folder: str, noise_type: str, var: 
     elif noise_type == 'poisson':
         noisy_image = random_noise(image, mode='poisson')
     else:
-        raise ValueError("Unsupported noise type. Choose 'gaussian', 'salt_pepper', or 'poisson'.")
+        raise ValueError(
+            "Unsupported noise type. Choose 'gaussian', 'salt_pepper', or 'poisson'."
+        )
     print(f"Applied {noise_type} noise to the image.")
 
     # Convert the noisy image to the correct format
@@ -51,3 +57,4 @@ def add_noise_and_save(image_path: str, main_folder: str, noise_type: str, var: 
     # Save the noisy image in the specified directory
     Image.fromarray(noisy_image).save(save_path)
     print(f"Noisy image saved as {new_filename} in {save_path}")
+    return save_path
