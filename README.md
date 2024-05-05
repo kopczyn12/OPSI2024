@@ -32,6 +32,10 @@ Before running the experiments, configure the settings in config/denoising_exper
 Execute the pipeline with the following command:
 ```python3 solution_pipeline.py +pipeline=denoising_experiment```
 
+### Unit tests
+
+To verify the correctness of the implemented code, execute the command ```pytest``` following the installation of the required dependencies. This command will initiate the unit tests, which evaluate the functionality of metrics calculations, denoising functions, and noise generation. You can review the tests located in the tests folder. Currently, all tests are passing successfully.
+
 ### Results
 Upon completion, the pipeline outputs:
 
