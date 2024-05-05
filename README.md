@@ -28,7 +28,11 @@ To run this project, you need Python 3.8 or later and `pip`. It's recommended to
 ### Configuration
 Before running the experiments, configure the settings in config/denoising_experiment.yaml within the config subfolder to meet your experiment's specific need
 
-### Running the Experiment
+### First Experiments
+
+In the folder ```experiments``` you can find first approaches and tests of mentioned algorithms on single images without pipeline. That were tests before 'final' experiment.
+
+### Running the Experiment (production pipeline)
 Execute the pipeline with the following command:
 ```python3 solution_pipeline.py +pipeline=denoising_experiment```
 

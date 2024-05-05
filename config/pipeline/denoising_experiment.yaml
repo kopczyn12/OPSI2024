@@ -4,8 +4,8 @@ name: denoising_experiment  # Unique identifier for the experiment
 # List of noise types to be applied to the images
 noise_types: 
   - "gaussian"      # Gaussian noise, characterized by statistical noise having a probability density function equal to that of the normal distribution
-  # - "salt_pepper"   # Salt and pepper noise, which is caused by sharp and sudden disturbances in the image signal
-  # - "poisson"       # Poisson noise or "shot noise", a type of noise that can be modeled by a Poisson process
+  - "salt_pepper"   # Salt and pepper noise, which is caused by sharp and sudden disturbances in the image signal
+  - "poisson"       # Poisson noise or "shot noise", a type of noise that can be modeled by a Poisson process
 
 # Directory containing the original images to be processed
 images_folder: /Users/mkopczynski/Desktop/OPSI2024/original_photos
@@ -13,8 +13,8 @@ images_folder: /Users/mkopczynski/Desktop/OPSI2024/original_photos
 # List of variances to test for each type of noise
 variances:
   - 0.01  # Lower variance, expected to have less visible noise
-  # - 0.05  # Moderate variance
-  # - 0.1   # Higher variance, resulting in more pronounced noise; You can add more variances to test
+  - 0.05  # Moderate variance
+  - 0.1   # Higher variance, resulting in more pronounced noise; You can add more variances to test
 
 # Main directory for the experiment, used to define the base path for other directories
 main_folder: /Users/mkopczynski/Desktop/OPSI2024
@@ -25,7 +25,7 @@ results_folder: /Users/mkopczynski/Desktop/OPSI2024/results
 # Range configuration for K, which defines the ranks used in matrix approximation methods
 k_range:
   start: 1   # Start rank, the smallest matrix rank to test
-  stop: 30  # Stop rank, the largest matrix rank to test
+  stop: 50  # Stop rank, the largest matrix rank to test
   step: 10   # Step between ranks in the test range
 
 # Directory where plots of the results should be saved
