@@ -35,7 +35,8 @@ Execute the pipeline with the following command:
 ### Results
 Upon completion, the pipeline outputs:
 
-CSV Files: Containing detailed metrics like SSIM and PSNR for each tested configuration.
-Plots: Visualizations of SSIM and PSNR across different ranks.
-Denoised Images: For each input image, the results folder will contain a visual representation of the denoised output.
+- CSV Files: Containing detailed metrics like SSIM and PSNR for each tested configuration.
+- Plots: Visualizations of SSIM and PSNR across different ranks.
+- Denoised Images: For each input image, the results folder will contain a visual representation of the denoised output.
+  
 Explore the results folder to review the denoised images and quantitative metrics. This comprehensive output allows for a thorough analysis of the algorithm performances under various conditions.
