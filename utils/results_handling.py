@@ -152,7 +152,7 @@ def plot_results(cfg: DictConfig, results_df: pd.DataFrame) -> None:
                     for method in df_filtered['Method'].unique():
                         method_data = df_filtered[df_filtered['Method'] == method].sort_values(by='K Rank')
 
-                        if cfg.pipeline.individual_plots:
+                        if cfg.pipeline.plots_individual:
                             # Plot for SSIM (individual method)
                             plt.figure(figsize=(10, 6))
                             plt.plot(method_data['K Rank'], method_data['SSIM'], marker='o', linestyle='-', color='blue')
@@ -179,7 +179,7 @@ def plot_results(cfg: DictConfig, results_df: pd.DataFrame) -> None:
                             logger.info(f"SSIM plot for {method} saved at {ssim_plot_path}.")
                             logger.info(f"PSNR plot for {method} saved at {psnr_plot_path}.")
 
-                    if cfg.pipeline.collective_plots:
+                    if cfg.pipeline.plots_collective:
                         # Collective plot for SSIM
                         plt.figure(figsize=(10, 6))
                         for method in df_filtered['Method'].unique():
