@@ -45,7 +45,7 @@ plots_dir: OPSI2024/plots
 
 # Configuration for enabling or disabling specific plots (Individual for each method or collective for all methods)
 plots_collective: True
-plots_individual: False:
+plots_individual: False
 
 # Configuration for enabling or disabling specific denoising methods
 methods:
