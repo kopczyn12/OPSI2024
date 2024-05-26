@@ -1,11 +1,12 @@
 import os
 import numpy as np
-from skimage import io
+from skimage import io, transform
 from skimage.util import random_noise
 from PIL import Image
+from omegaconf import DictConfig
 
-
-def add_noise_and_save(image_path: str,
+def add_noise_and_save(cfg: DictConfig, 
+                       image_path: str,
                        main_folder: str,
                        noise_type: str,
                        var: float = 0.01) -> None:
@@ -14,6 +15,7 @@ def add_noise_and_save(image_path: str,
     appending the variance value to the file name.
 
     Args:
+        cfg (DictConfig): The configuration object.
         image_path (str): The path to the input image.
         main_folder (str): The base folder where the 'noise_photos' folder will be created.
         noise_type (str): The type of noise to add. Options are 'gaussian', 'salt_pepper', and 'poisson'.
@@ -24,7 +26,12 @@ def add_noise_and_save(image_path: str,
     """
 
     # Load the image
+    # Check if the image size is as expected
     image = io.imread(image_path)
+    if image.shape[1] != cfg.pipeline.figures.size_width or image.shape[0] != cfg.pipeline.figures.size_height:
+        # Resize the image
+        image = transform.resize(image, (cfg.pipeline.figures.size_height, cfg.pipeline.figures.size_width), anti_aliasing=True)
+        io.imsave(image_path, (image * 255).astype(np.uint8))
     print(f"Loaded image from {image_path}")
 
     # Apply the specified type of noise to the image
@@ -34,6 +41,8 @@ def add_noise_and_save(image_path: str,
         noisy_image = random_noise(image, mode='s&p', amount=var)
     elif noise_type == 'poisson':
         noisy_image = random_noise(image, mode='poisson')
+    elif noise_type == 'speckle':
+        noisy_image = random_noise(image, mode='speckle', var=var)
     else:
         raise ValueError(
             "Unsupported noise type. Choose 'gaussian', 'salt_pepper', or 'poisson'."

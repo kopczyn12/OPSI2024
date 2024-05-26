@@ -4,6 +4,7 @@ from utils.noise_generation import add_noise_and_save
 from utils.metrics import calculate_metrics
 from omegaconf import DictConfig
 from typing import List, Dict
+from skimage import io
 import matplotlib.pyplot as plt
 import pandas as pd
 from utils.denoising_algorithms import (
@@ -48,18 +49,21 @@ def run_denoising_experiment(cfg: DictConfig) -> pd.DataFrame:
     logger.debug(f"k_range set to start at {k_start}, stop at {k_stop}, step by {k_step}.")
 
     # Define methods based on configuration flags
+    methods_to_analyze = dict(cfg.pipeline.methods)
     methods = {}
-    if cfg.pipeline.methods.get('dictionary_learning', True):
+
+    if methods_to_analyze["dictionary_learning"]:
         methods["Dictionary Learning"] = denoise_image_with_dictionary_learning
-    if cfg.pipeline.methods.get('ICA', True):
+    if methods_to_analyze["ica"]:
         methods["ICA"] = denoise_image_with_ica
-    if cfg.pipeline.methods.get('PCA', True):
+    if methods_to_analyze["pca"]:
         methods["PCA"] = denoise_image_with_pca
-    if cfg.pipeline.methods.get('Low Rank', True):
+    if methods_to_analyze["low_rank"]:
         methods["Low Rank"] = denoise_image_with_low_rank
-    if cfg.pipeline.methods.get('NMF', True):
+    if methods_to_analyze["nmf"]:
         methods["NMF"] = denoise_image_with_nmf
-    logger.info("Denoising methods configured.")
+
+    logger.debug(f"Methods to analyze: {methods.keys()}.")
 
     results_list = []
 
@@ -70,7 +74,7 @@ def run_denoising_experiment(cfg: DictConfig) -> pd.DataFrame:
                 logger.info(f"Processing {os.path.basename(image_path)} with {noise_type} noise at variance {var}.")
 
                 # Add noise and save the noisy image
-                noisy_image_path = add_noise_and_save(image_path, cfg.pipeline.main_folder, noise_type, var)
+                noisy_image_path = add_noise_and_save(cfg, image_path, cfg.pipeline.main_folder, noise_type, var)
                 logger.info("Noisy image saved at: " + noisy_image_path)
 
                 for method_name, method_function in methods.items():
@@ -111,7 +115,7 @@ def plot_results(cfg: DictConfig, results_df: pd.DataFrame) -> None:
 
     This function iterates through each unique method, noise type, variance, and image in the results
     dataframe, filters the results, and generates plots for SSIM and PSNR metrics which are saved to
-    the specified directory.
+    the specified directory. Additionally, it creates collective plots showing all methods for comparison.
 
     Args:
         cfg (DictConfig): Configuration object containing experiment settings, including the directory
@@ -129,43 +133,83 @@ def plot_results(cfg: DictConfig, results_df: pd.DataFrame) -> None:
     os.makedirs(cfg.pipeline.plots_dir, exist_ok=True)
 
     # Iterate over each method, noise type, variance, and specific image
-    for method in results_df['Method'].unique():
-        for noise_type in results_df['Noise Type'].unique():
-            for variance in results_df['Variance'].unique():
-                for image_name in results_df['Image'].unique():
-                    # Filter the DataFrame for the current method, noise type, variance, and image
-                    df_filtered = results_df[
-                        (results_df['Method'] == method) &
-                        (results_df['Noise Type'] == noise_type) &
-                        (results_df['Variance'] == variance) &
-                        (results_df['Image'] == image_name)
-                    ].sort_values(by='K Rank')
+    for noise_type in results_df['Noise Type'].unique():
+        for variance in results_df['Variance'].unique():
+            for image_name in results_df['Image'].unique():
+                # Filter the DataFrame for the current noise type, variance, and image
+                df_filtered = results_df[
+                    (results_df['Noise Type'] == noise_type) &
+                    (results_df['Variance'] == variance) &
+                    (results_df['Image'] == image_name)
+                ]
 
-                    if not df_filtered.empty:
-                        # Plot for SSIM
+                # Load the image to get its size
+                image_path = os.path.join(cfg.pipeline.images_folder, image_name)
+                image = io.imread(image_path)
+                image_size = f"{image.shape[1]}x{image.shape[0]}"  # width x height
+
+                if not df_filtered.empty:
+                    for method in df_filtered['Method'].unique():
+                        method_data = df_filtered[df_filtered['Method'] == method].sort_values(by='K Rank')
+
+                        if cfg.pipeline.individual_plots:
+                            # Plot for SSIM (individual method)
+                            plt.figure(figsize=(10, 6))
+                            plt.plot(method_data['K Rank'], method_data['SSIM'], marker='o', linestyle='-', color='blue')
+                            plt.title(f'{method} - SSIM by K Rank\nImage: {image_name} ({image_size}), Noise: {noise_type}, Variance: {variance}')
+                            plt.xlabel('K Rank')
+                            plt.ylabel('SSIM')
+                            plt.grid(True)
+                            ssim_plot_path = os.path.join(cfg.pipeline.plots_dir, f'{method}_{image_name}_{noise_type}_{variance}_SSIM.png')
+                            plt.savefig(ssim_plot_path)
+                            plt.close()
+
+                            # Plot for PSNR (individual method)
+                            plt.figure(figsize=(10, 6))
+                            plt.plot(method_data['K Rank'], method_data['PSNR'], marker='o', linestyle='-', color='red')
+                            plt.title(f'{method} - PSNR by K Rank\nImage: {image_name} ({image_size}), Noise: {noise_type}, Variance: {variance}')
+                            plt.xlabel('K Rank')
+                            plt.ylabel('PSNR')
+                            plt.grid(True)
+                            psnr_plot_path = os.path.join(cfg.pipeline.plots_dir, f'{method}_{image_name}_{noise_type}_{variance}_PSNR.png')
+                            plt.savefig(psnr_plot_path)
+                            plt.close()
+
+                            # Log the paths where plots are saved
+                            logger.info(f"SSIM plot for {method} saved at {ssim_plot_path}.")
+                            logger.info(f"PSNR plot for {method} saved at {psnr_plot_path}.")
+
+                    if cfg.pipeline.collective_plots:
+                        # Collective plot for SSIM
                         plt.figure(figsize=(10, 6))
-                        plt.plot(df_filtered['K Rank'], df_filtered['SSIM'], marker='o', linestyle='-', color='blue')
-                        plt.title(f'{method} - SSIM by K Rank\nImage: {image_name}, Noise: {noise_type}, Variance: {variance}')
+                        for method in df_filtered['Method'].unique():
+                            method_data = df_filtered[df_filtered['Method'] == method].sort_values(by='K Rank')
+                            plt.plot(method_data['K Rank'], method_data['SSIM'], marker='o', linestyle='-', label=method)
+                        plt.title(f'SSIM by K Rank\nImage: {image_name} ({image_size}), Noise: {noise_type}, Variance: {variance}')
                         plt.xlabel('K Rank')
                         plt.ylabel('SSIM')
+                        plt.legend()
                         plt.grid(True)
-                        ssim_plot_path = os.path.join(cfg.pipeline.plots_dir, f'{method}_{image_name}_{noise_type}_{variance}_SSIM.png')
-                        plt.savefig(ssim_plot_path)
+                        ssim_collective_plot_path = os.path.join(cfg.pipeline.plots_dir, f'Collective_{image_name}_{noise_type}_{variance}_SSIM.png')
+                        plt.savefig(ssim_collective_plot_path)
                         plt.close()
 
-                        # Plot for PSNR
+                        # Collective plot for PSNR
                         plt.figure(figsize=(10, 6))
-                        plt.plot(df_filtered['K Rank'], df_filtered['PSNR'], marker='o', linestyle='-', color='red')
-                        plt.title(f'{method} - PSNR by K Rank\nImage: {image_name}, Noise: {noise_type}, Variance: {variance}')
+                        for method in df_filtered['Method'].unique():
+                            method_data = df_filtered[df_filtered['Method'] == method].sort_values(by='K Rank')
+                            plt.plot(method_data['K Rank'], method_data['PSNR'], marker='o', linestyle='-', label=method)
+                        plt.title(f'PSNR by K Rank\nImage: {image_name} ({image_size}), Noise: {noise_type}, Variance: {variance}')
                         plt.xlabel('K Rank')
                         plt.ylabel('PSNR')
+                        plt.legend()
                         plt.grid(True)
-                        psnr_plot_path = os.path.join(cfg.pipeline.plots_dir, f'{method}_{image_name}_{noise_type}_{variance}_PSNR.png')
-                        plt.savefig(psnr_plot_path)
+                        psnr_collective_plot_path = os.path.join(cfg.pipeline.plots_dir, f'Collective_{image_name}_{noise_type}_{variance}_PSNR.png')
+                        plt.savefig(psnr_collective_plot_path)
                         plt.close()
 
-                        # Log the paths where plots are saved
-                        logger.info(f"SSIM plot saved at {ssim_plot_path}.")
-                        logger.info(f"PSNR plot saved at {psnr_plot_path}.")
+                        # Log the paths where collective plots are saved
+                        logger.info(f"SSIM collective plot saved at {ssim_collective_plot_path}.")
+                        logger.info(f"PSNR collective plot saved at {psnr_collective_plot_path}.")
 
     logger.info("Completed plotting all metrics.")

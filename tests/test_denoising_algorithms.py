@@ -5,13 +5,79 @@ from PIL import Image
 import numpy as np
 import sys
 from skimage import io
+import matplotlib.pyplot as plt
 sys.path.append('.')
 sys.path.append('..')
 from utils.denoising_algorithms import denoise_image_with_ica, denoise_image_with_dictionary_learning, denoise_image_with_low_rank, denoise_image_with_nmf, denoise_image_with_pca
 from utils.metrics import calculate_metrics
 from utils.noise_generation import add_noise_and_save
+from utils.draw_figures import draw_triangle, draw_circle, draw_square, draw_parallelogram, draw_rhombus, draw_shape
 from sklearn.utils._testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
+
+@pytest.fixture
+def cleanup_files():
+    """Fixture to clean up generated image files after tests."""
+    files = ['triangle.png', 'circle.png', 'square.png', 'parallelogram.png', 'rhombus.png']
+    yield
+    for file in files:
+        if os.path.exists(file):
+            os.remove(file)
+
+def test_draw_shape_creates_file(cleanup_files):
+    """Test that draw_shape creates a file."""
+    size_pixels = (512, 512)
+
+    draw_shape(draw_triangle, 'triangle.png', size_pixels)
+    assert os.path.exists('triangle.png')
+
+    draw_shape(draw_circle, 'circle.png', size_pixels)
+    assert os.path.exists('circle.png')
+
+    draw_shape(draw_square, 'square.png', size_pixels)
+    assert os.path.exists('square.png')
+
+    draw_shape(draw_parallelogram, 'parallelogram.png', size_pixels)
+    assert os.path.exists('parallelogram.png')
+
+    draw_shape(draw_rhombus, 'rhombus.png', size_pixels)
+    assert os.path.exists('rhombus.png')
+
+def test_draw_triangle():
+    """Test drawing a triangle."""
+    fig, ax = plt.subplots()
+    draw_triangle(ax)
+    assert len(ax.patches) == 1
+    assert isinstance(ax.patches[0], plt.Polygon)
+
+def test_draw_circle():
+    """Test drawing a circle."""
+    fig, ax = plt.subplots()
+    draw_circle(ax)
+    assert len(ax.patches) == 1
+    assert isinstance(ax.patches[0], plt.Circle)
+
+def test_draw_square():
+    """Test drawing a square."""
+    fig, ax = plt.subplots()
+    draw_square(ax)
+    assert len(ax.patches) == 1
+    assert isinstance(ax.patches[0], plt.Rectangle)
+
+def test_draw_parallelogram():
+    """Test drawing a parallelogram."""
+    fig, ax = plt.subplots()
+    draw_parallelogram(ax)
+    assert len(ax.patches) == 1
+    assert isinstance(ax.patches[0], plt.Polygon)
+
+def test_draw_rhombus():
+    """Test drawing a rhombus."""
+    fig, ax = plt.subplots()
+    draw_rhombus(ax)
+    assert len(ax.patches) == 1
+    assert isinstance(ax.patches[0], plt.Polygon)
+
 
 @pytest.fixture
 def noisy_image(tmpdir):

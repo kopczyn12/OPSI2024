@@ -1,5 +1,8 @@
 # OPSI2024 - Image Denoising Experiment
 
+## **Note**
+**The medical images in the `original_photos` folder are sourced from the [Kaggle CT Medical Images Database](https://www.kaggle.com/datasets/kmader/siim-medical-images?resource=download). The images of the figures were created by myself.**
+
 ## Overview
 This repository hosts the necessary experiments and a production pipeline for the academic project titled "The Effect of the Rank of the Approximation Matrix on the Quality of Image Denoising". This project has been developed as part of a college credit requirement. It evaluates the performance of several denoising algorithms to understand how different ranks of approximation matrices impact the quality of image denoising.
 
@@ -44,7 +47,7 @@ To verify the correctness of the implemented code, execute the command ```pytest
 Upon completion, the pipeline outputs:
 
 - CSV Files: Containing detailed metrics like SSIM and PSNR for each tested configuration.
-- Plots: Visualizations of SSIM and PSNR across different ranks.
+- Plots: Visualizations of SSIM and PSNR across different ranks (Collective and individual cases).
 - Denoised Images: For each input image, the results folder will contain a visual representation of the denoised output.
-  
+
 Explore the results folder to review the denoised images and quantitative metrics. This comprehensive output allows for a thorough analysis of the algorithm performances under various conditions.
