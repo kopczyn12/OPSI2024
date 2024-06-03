@@ -1,32 +1,32 @@
-# Configuration for the denoising experiment setup - paths proposed, adjust as needed
+# Configuration for the denoising experiment setup
 name: denoising_experiment  # Unique identifier for the experiment
 
 figures:
-  draw_figures: True  # Whether to draw figures or not for experiment
+  draw_figures: False  # Whether to draw figures or not for experiment
   size_width: 512
   size_height: 512
-  circle_path: OPSI2024/original_photos/circle.png
-  square_path: OPSI2024/original_photos/square.png
-  triangle_path: OPSI2024/original_photos/triangle.png
-  rhombus_path: OPSI2024/original_photos/rhombus.png
-  parallelogram_path: Desktop/OPSI2024/original_photos/parallelogram.png
+  circle_path: /Users/mkopczynski/Desktop/OPSI2024/original_photos/circle.png
+  square_path: /Users/mkopczynski/Desktop/OPSI2024/original_photos/square.png
+  triangle_path: /Users/mkopczynski/Desktop/OPSI2024/original_photos/triangle.png
+  rhombus_path: /Users/mkopczynski/Desktop/OPSI2024/original_photos/rhombus.png
+  parallelogram_path: /Users/mkopczynski/Desktop/OPSI2024/original_photos/parallelogram.png
 
 # List of noise types to be applied to the images
 noise_types:
   - "gaussian"      # Gaussian noise, characterized by statistical noise having a probability density function equal to that of the normal distribution
   - "salt_pepper"   # Salt and pepper noise, which is caused by sharp and sudden disturbances in the image signal
   - "poisson"       # Poisson noise or "shot noise", a type of noise that can be modeled by a Poisson process
-  - "speckle"       # Speckle noise, a type of noise that can be modeled as an additive noise
+  # - "speckle"       # Speckle noise, a type of noise that can be modeled as an additive noise
 
 # Directory containing the original images to be processed
 images_folder: Desktop/OPSI2024/original_photos
 
 # List of variances to test for each type of noise
 variances:
-  - 0.01  # Lower variance, expected to have less visible noise
+  # - 0.01  # Lower variance, expected to have less visible noise
   - 0.05  # Moderate variance
-  - 0.1   # Higher variance, resulting in more pronounced noise; You can add more variances to test
-  - 0.3
+  # - 0.1   # Higher variance, resulting in more pronounced noise; You can add more variances to test
+  - 0.2
 
 # Main directory for the experiment, used to define the base path for other directories
 main_folder: Desktop/OPSI2024
@@ -34,23 +34,23 @@ main_folder: Desktop/OPSI2024
 # Directory where results of the denoising should be saved
 results_folder: Desktop/OPSI2024/results
 
-# Range configuration for K, which defines the ranks used in matrix approximation methods
+# Range configuration for K, which defines the ranks used in matrix approximation methods (anyway it cannot be higher that the smaller dimension of the image)
 k_range:
   start: 1   # Start rank, the smallest matrix rank to test
-  stop: 100  # Stop rank, the largest matrix rank to test
-  step: 2000   # Step between ranks in the test range
+  stop: 1500  # Stop rank, the largest matrix rank to test
+  step: 100   # Step between ranks in the test range
 
 # Directory where plots of the results should be saved
-plots_dir: OPSI2024/plots
+plots_dir: Desktop/OPSI2024/plots
 
 # Configuration for enabling or disabling specific plots (Individual for each method or collective for all methods)
 plots_collective: True
-plots_individual: False
+plots_individual: True
 
 # Configuration for enabling or disabling specific denoising methods
 methods:
   dictionary_learning: False  # Dictionary Learning method (disabled)
-  ica: True                   # Independent Component Analysis (enabled)
-  pca: False                   # Principal Component Analysis (enabled)
-  low_rank: False              # Low Rank Approximation (enabled)
-  nmf: False                   # Non-negative Matrix Factorization (enabled)
+  ica: False                   # Independent Component Analysis (enabled)
+  pca: True                   # Principal Component Analysis (enabled)
+  low_rank: True              # Low Rank Approximation (enabled)
+  nmf: True                   # Non-negative Matrix Factorization (enabled)
